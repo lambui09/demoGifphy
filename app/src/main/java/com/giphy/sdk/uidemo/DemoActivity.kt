@@ -35,8 +35,6 @@ import timber.log.Timber
  * Created by Cristian Holdunu on 27/02/2019.
  */
 class DemoActivity : AppCompatActivity() {
-    private var bottomSheetBehavior: BottomSheetBehavior<FragmentContainerView>? = null
-    private var dialogFragment: PickGifBottomSheetDialog? = null
 
     companion object {
         val TAG = DemoActivity::class.java.simpleName
@@ -67,20 +65,10 @@ class DemoActivity : AppCompatActivity() {
 
         setupToolbar()
         setupFeed()
-        initTabLayoutProfile()
-        binding.root.setOnClickListener {
-            binding.viewPager2.show(isShow)
-            binding.viewContainerGif.show(!isShow)
-        }
-
+        //todo show popup gif
         binding.testGifClick.setOnClickListener {
-            Log.d("#####", "vaoday")
-            player.onPause()
-            binding.messageFeed.smoothScrollToPosition(
-                binding.messageFeed.adapter?.itemCount ?: 1 - 1
-            )
-            binding.viewPager2.show(true)
-            binding.viewContainerGif.show(false)
+            PickGifBottomSheetDialog.newInstance()
+                .show(supportFragmentManager, PickGifBottomSheetDialog::class.java.simpleName)
         }
     }
 
@@ -245,39 +233,4 @@ class DemoActivity : AppCompatActivity() {
         Timber.d("onActivityResult")
         super.onActivityResult(requestCode, resultCode, data)
     }
-
-    override fun finish() {
-        finishByCollapseBottomSheet()
-    }
-
-    private fun finishByCollapseBottomSheet() {
-        bottomSheetBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
-    }
-
-    private fun superFinish() {
-        super.finish()
-    }
-
-    private fun initBottomSheetBehavior() {
-        bottomSheetBehavior?.apply {
-            peekHeight = dpToPx(400f)
-            skipCollapsed = true
-            addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                        superFinish()
-                        overridePendingTransition(0, 0)
-                    }
-                }
-            })
-        }
-    }
-
-    private fun initTabLayoutProfile() {
-        val adapter = GifphyPagerAdapter(this)
-        binding.viewPager2.offscreenPageLimit = 1
-        binding.viewPager2.adapter = adapter
-    }
-
 }

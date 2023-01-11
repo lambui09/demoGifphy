@@ -50,10 +50,6 @@ class PickGifBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpGripGif()
-        binding.clSearch.setOnTouchListener { view, motionEvent ->
-
-            true
-        }
     }
 
     override fun onDestroyView() {

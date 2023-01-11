@@ -1,6 +1,7 @@
 package com.giphy.sdk.uidemo
 
 import android.app.Activity
+import android.app.Dialog
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -38,7 +39,6 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
     private val binding get() = _binding!!
     private var pickGif: ((Media) -> Unit)? = null
     private lateinit var dialog: BottomSheetDialog
-    private lateinit var behavior: BottomSheetBehavior<View>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +47,21 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
     ): View {
         _binding = LayoutGifphyBottomsheetBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return super.onCreateDialog(savedInstanceState)
+        (dialog as? BottomSheetDialog)?.behavior?.apply {
+            state = BottomSheetBehavior.STATE_EXPANDED
+            addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+
+                    }
+                }
+            })
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,7 +112,7 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
     }
 
     private fun dismissKeyboard() {
-        val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.layoutSearchGif.edtSearch.windowToken, 0)
+        val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(binding.layoutSearchGif.edtSearch.windowToken, 0)
     }
 }
