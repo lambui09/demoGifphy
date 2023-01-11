@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/create_recipe_navigation"
+    app:startDestination="@id/pickGifphy">
+
+    <fragment
+        android:id="@+id/pickGifphy"
+        android:name="com.giphy.sdk.uidemo.PickGifBottomSheetDialog"
+        android:label="CreateRecipe"
+        tools:layout="@layout/layout_gifphy_bottomsheet" />
+
+</navigation>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_52"
+        android:orientation="horizontal">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/container_search"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_52"
+            android:layout_weight="1"
+            android:background="@drawable/search_box_grey_border_gif">
+
+        <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imvSearchIcon"
+                android:layout_width="@dimen/dp_16"
+                android:layout_height="@dimen/dp_16"
+                android:layout_marginStart="@dimen/dp_16"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/edtSearch"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_search_gray" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/edtSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_11"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:hint="input"
+                android:imeOptions="actionSearch"
+                android:inputType="text|textCapSentences"
+                android:paddingTop="@dimen/dp_16"
+                android:paddingBottom="@dimen/dp_16"
+                android:textColor="@color/black"
+                android:textColorHint="@color/color_7B7E9199"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/imvClear"
+                app:layout_constraintStart_toEndOf="@id/imvSearchIcon"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imvClear"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:layout_marginEnd="@dimen/dp_16"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/edtSearch"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/edtSearch"
+                app:srcCompat="@drawable/ic_remove_text_gifphy"
+                tools:visibility="visible" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvGifPhyDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingVertical="@dimen/dp_16"
+            android:paddingStart="@dimen/dp_16"
+            android:text="Done"
+            android:textColor="@color/color_7470EF"
+            android:textSize="@dimen/sp_16" />
+</androidx.appcompat.widget.LinearLayoutCompat>
