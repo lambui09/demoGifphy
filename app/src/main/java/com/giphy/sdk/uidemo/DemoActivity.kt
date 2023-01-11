@@ -1,12 +1,17 @@
 package com.giphy.sdk.uidemo
 
+import android.annotation.SuppressLint
+import android.app.ActionBar.LayoutParams
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewTreeObserver
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +35,7 @@ import com.giphy.sdk.uidemo.databinding.ActivityDemoBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import timber.log.Timber
+import kotlin.math.log
 
 /**
  * Created by Cristian Holdunu on 27/02/2019.
@@ -65,10 +71,59 @@ class DemoActivity : AppCompatActivity() {
 
         setupToolbar()
         setupFeed()
+        handleFragBottomSheet()
         //todo show popup gif
         binding.testGifClick.setOnClickListener {
-            PickGifBottomSheetDialog.newInstance()
-                .show(supportFragmentManager, PickGifBottomSheetDialog::class.java.simpleName)
+            binding.composeContainer.apply {
+                if (!isShow) {
+                    val lp = layoutParams as? MarginLayoutParams
+                    lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(250f))
+                    binding.bottomSheetCtn.visibility = View.VISIBLE
+                } else {
+                    val lp = layoutParams as? MarginLayoutParams
+                    lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(16f))
+                    binding.bottomSheetCtn.visibility = View.GONE
+                }
+                isShow = !isShow
+            }
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun handleFragBottomSheet() {
+        var downY = 0f
+        val lp = binding.bottomSheetCtn.layoutParams
+        var time = 0L
+        binding.bottomSheetCtn.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_UP -> {
+                    val rangeTime = System.currentTimeMillis() - time
+                    Log.d("####", "handleFragBottomSheet: ${(downY - event.y) / rangeTime}")
+                    when {
+                        (downY - event.y) / rangeTime > 0.2 -> {
+                            lp.height = binding.contentView.height
+                        }
+                        (event.y - downY) / rangeTime > 0.2 -> {
+                            lp.height = dpToPx(250f)
+                        }
+                        lp.height > binding.contentView.height - dpToPx(200f) -> {
+                            lp.height = binding.contentView.height
+                        }
+                        lp.height < binding.contentView.height - dpToPx(200f) -> {
+                            lp.height = dpToPx(250f)
+                        }
+                    }
+                }
+                MotionEvent.ACTION_DOWN -> {
+                    downY = event.y
+                    time = System.currentTimeMillis()
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    lp.height += (downY - event.y).toInt()
+                }
+            }
+            binding.bottomSheetCtn.layoutParams = lp
+            true
         }
     }
 
