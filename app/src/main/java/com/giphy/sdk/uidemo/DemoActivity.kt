@@ -119,6 +119,19 @@ class DemoActivity : AppCompatActivity() {
                 isShow = !isShow
             }
         }
+        HeightKeyboardProvider(this@DemoActivity).init()
+            .setHeightKeyboardListener(object : HeightKeyboardProvider.HeightKeyboardListener {
+                override fun onHeightKeyboardChanged(height: Int, heightKeyboar: Int) {
+                    Log.d("####", "Before${binding.contentView.height}")
+                    Log.d("###", "height$heightKeyboar")
+                    //todo check bug
+                    if (heightKeyboar > 1000) {
+                        val lp = binding.bottomSheetGifPhy.layoutParams
+                        lp.height = binding.contentView.height - heightKeyboar
+                        binding.bottomSheetGifPhy.layoutParams = lp
+                    }
+                }
+            })
     }
 
 
@@ -354,7 +367,7 @@ class DemoActivity : AppCompatActivity() {
             }
             EnumStatePopup.FULL_SCREEN.value -> {
                 stateOfPopup = EnumStatePopup.FULL_SCREEN.value
-                lp.height = binding.contentView.height + getKeyboardHeight(binding.contentView)
+                lp.height = binding.contentView.height
                 binding.bottomSheetGifPhy.layoutParams = lp
                 bottomSheetGifPhy?.setState(EnumStatePopup.FULL_SCREEN.value)
             }
