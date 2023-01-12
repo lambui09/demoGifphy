@@ -26,6 +26,7 @@ import com.giphy.sdk.ui.utils.GPHVideoPlayerState
 import com.giphy.sdk.ui.views.GiphyDialogFragment
 import com.giphy.sdk.uidemo.VideoPlayer.VideoCache
 import com.giphy.sdk.uidemo.context.dpToPx
+import com.giphy.sdk.uidemo.context.showSoftKeyboard
 import com.giphy.sdk.uidemo.databinding.ActivityDemoBinding
 import com.giphy.sdk.uidemo.feed.*
 import timber.log.Timber
@@ -73,22 +74,25 @@ class DemoActivity : AppCompatActivity() {
 
         bottomSheetGifPhy = PickGifBottomSheetDialog.newInstance(
             pickGif = { media ->
-                Log.d("####", "media${media.id}")
                 dismissKeyboard()
                 if (stateOfPopup != EnumStatePopup.COLLAPSE.value) {
                     setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
                 }
             },
             focusEdittext = { isFocus ->
-                //show/height keyboard
-                Log.d("####", "isFocus${isFocus}")
                 if (isFocus) {
                     setHeightPopupGif(EnumStatePopup.FULL_SCREEN.value)
-                } else {
-                    dismissKeyboard()
-                    setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
+                    showSoftKeyboard(this)
                 }
             },
+            onHeightKeyboard = {
+                if (isKeyboardVisible(binding.contentView)) {
+                    dismissKeyboard()
+                }
+            },
+            onCollapsePopup = {
+                setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
+            }
         )
         bottomSheetGifPhy?.let { instance ->
             supportFragmentManager.beginTransaction()
@@ -342,6 +346,7 @@ class DemoActivity : AppCompatActivity() {
         val lp = binding.bottomSheetGifPhy.layoutParams
         when (state) {
             EnumStatePopup.COLLAPSE.value -> {
+                dismissKeyboard()
                 stateOfPopup = EnumStatePopup.COLLAPSE.value
                 lp.height = dpToPx(250f)
                 binding.bottomSheetGifPhy.layoutParams = lp
@@ -349,7 +354,7 @@ class DemoActivity : AppCompatActivity() {
             }
             EnumStatePopup.FULL_SCREEN.value -> {
                 stateOfPopup = EnumStatePopup.FULL_SCREEN.value
-                lp.height = binding.contentView.height
+                lp.height = binding.contentView.height + getKeyboardHeight(binding.contentView)
                 binding.bottomSheetGifPhy.layoutParams = lp
                 bottomSheetGifPhy?.setState(EnumStatePopup.FULL_SCREEN.value)
             }

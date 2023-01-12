@@ -30,6 +30,20 @@ fun Activity.hideSoftKeyboard() {
     }
 }
 
+fun showSoftKeyboard(view: View?) {
+    if (view != null) {
+        val inputManager = view.context
+            .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.toggleSoftInput(
+            InputMethodManager.HIDE_IMPLICIT_ONLY,
+            0
+        )
+    }
+}
+fun showSoftKeyboard(activity: Activity) {
+    showSoftKeyboard(activity.window.decorView.rootView)
+}
+
 fun FragmentActivity.replaceFragment(
     @IdRes containerId: Int,
     fragment: Fragment,
