@@ -1,21 +1,19 @@
 package com.giphy.sdk.uidemo
 
 import android.annotation.SuppressLint
-import android.app.ActionBar.LayoutParams
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.view.ViewTreeObserver
-import androidx.activity.addCallback
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentContainerView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.giphy.sdk.core.models.Media
 import com.giphy.sdk.tracking.isVideo
 import com.giphy.sdk.ui.GPHContentType
@@ -28,18 +26,20 @@ import com.giphy.sdk.ui.utils.GPHVideoPlayerState
 import com.giphy.sdk.ui.views.GiphyDialogFragment
 import com.giphy.sdk.uidemo.VideoPlayer.VideoCache
 import com.giphy.sdk.uidemo.context.dpToPx
-import com.giphy.sdk.uidemo.context.setStatusBarColor
-import com.giphy.sdk.uidemo.context.show
-import com.giphy.sdk.uidemo.feed.*
 import com.giphy.sdk.uidemo.databinding.ActivityDemoBinding
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.tabs.TabLayoutMediator
+import com.giphy.sdk.uidemo.feed.*
 import timber.log.Timber
-import kotlin.math.log
+
 
 /**
  * Created by Cristian Holdunu on 27/02/2019.
  */
+enum class EnumStatePopup(val value: Int) {
+    HIDE(0),
+    COLLAPSE(1),
+    FULL_SCREEN(2),
+}
+
 class DemoActivity : AppCompatActivity() {
 
     companion object {
@@ -53,6 +53,7 @@ class DemoActivity : AppCompatActivity() {
     var feedAdapter: MessageFeedAdapter? = null
     var messageItems = ArrayList<FeedDataItem>()
     var contentType = GPHContentType.gif
+    var stateOfPopup = EnumStatePopup.HIDE.value
 
     //TODO: Set a valid API KEY
     val YOUR_API_KEY = INVALID_KEY
@@ -60,6 +61,7 @@ class DemoActivity : AppCompatActivity() {
     val player: GPHAbstractVideoPlayer = createVideoPlayer()
     private var clipsPlaybackSetting = SettingsDialogFragment.ClipsPlaybackSetting.inline
     var isShow = false
+    private var bottomSheetGifPhy: PickGifBottomSheetDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +71,33 @@ class DemoActivity : AppCompatActivity() {
         binding = ActivityDemoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        bottomSheetGifPhy = PickGifBottomSheetDialog.newInstance(
+            pickGif = { media ->
+                Log.d("####", "media${media.id}")
+                if (stateOfPopup != EnumStatePopup.COLLAPSE.value) {
+                    setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
+                }
+            },
+            focusEdittext = { isFocus ->
+                //show/height keyboard
+                Log.d("####", "isFocus${isFocus}")
+                if (isFocus) {
+                    setHeightPopupGif(EnumStatePopup.FULL_SCREEN.value)
+                } else {
+                    setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
+                }
+            },
+            backDefaultHeightPopup = {
+                dismissKeyboard()
+                binding.bottomSheetGifPhy.layoutParams.height = dpToPx(250f)
+                binding.bottomSheetGifPhy.animate().start()
+            }
+        )
+        bottomSheetGifPhy?.let { instance ->
+            supportFragmentManager.beginTransaction()
+                .add(R.id.bottomSheetGifPhy, instance)
+                .commit()
+        }
         setupToolbar()
         setupFeed()
         handleFragBottomSheet()
@@ -78,39 +107,49 @@ class DemoActivity : AppCompatActivity() {
                 if (!isShow) {
                     val lp = layoutParams as? MarginLayoutParams
                     lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(250f))
-                    binding.bottomSheetCtn.visibility = View.VISIBLE
+                    binding.bottomSheetGifPhy.visibility = View.VISIBLE
+                    stateOfPopup = EnumStatePopup.COLLAPSE.value
                 } else {
                     val lp = layoutParams as? MarginLayoutParams
                     lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(16f))
-                    binding.bottomSheetCtn.visibility = View.GONE
+                    binding.bottomSheetGifPhy.visibility = View.GONE
+                    stateOfPopup = EnumStatePopup.HIDE.value
                 }
                 isShow = !isShow
             }
         }
     }
 
+
     @SuppressLint("ClickableViewAccessibility")
     private fun handleFragBottomSheet() {
         var downY = 0f
-        val lp = binding.bottomSheetCtn.layoutParams
+        val lp = binding.bottomSheetGifPhy.layoutParams
         var time = 0L
-        binding.bottomSheetCtn.setOnTouchListener { v, event ->
+        binding.bottomSheetGifPhy.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     val rangeTime = System.currentTimeMillis() - time
                     Log.d("####", "handleFragBottomSheet: ${(downY - event.y) / rangeTime}")
                     when {
+                        //scroll fast
                         (downY - event.y) / rangeTime > 0.2 -> {
                             lp.height = binding.contentView.height
                         }
                         (event.y - downY) / rangeTime > 0.2 -> {
                             lp.height = dpToPx(250f)
                         }
-                        lp.height > binding.contentView.height - dpToPx(200f) -> {
+                        //top: scroll full screen
+                        (lp.height > binding.contentView.height - dpToPx(200f)) -> {
                             lp.height = binding.contentView.height
+                            binding.bottomSheetGifPhy.animate().start()
+                            stateOfPopup = EnumStatePopup.FULL_SCREEN.value
                         }
+                        //down to pin 250
                         lp.height < binding.contentView.height - dpToPx(200f) -> {
                             lp.height = dpToPx(250f)
+                            stateOfPopup = EnumStatePopup.FULL_SCREEN.value
+                            binding.bottomSheetGifPhy.animate().start()
                         }
                     }
                 }
@@ -122,10 +161,12 @@ class DemoActivity : AppCompatActivity() {
                     lp.height += (downY - event.y).toInt()
                 }
             }
-            binding.bottomSheetCtn.layoutParams = lp
+            Log.d("####", "bottomSheetGifPhy: ${lp.height}")
+            binding.bottomSheetGifPhy.layoutParams = lp
             true
         }
     }
+
 
     override fun onDestroy() {
         player.onDestroy()
@@ -287,5 +328,37 @@ class DemoActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Timber.d("onActivityResult")
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun isKeyboardVisible(attachedView: View): Boolean {
+        val insets = ViewCompat.getRootWindowInsets(attachedView)
+        return insets?.isVisible(WindowInsetsCompat.Type.ime()) ?: false
+    }
+
+    fun getKeyboardHeight(attachedView: View): Int {
+        val insets = ViewCompat.getRootWindowInsets(attachedView)
+        return insets?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
+    }
+
+    private fun dismissKeyboard() {
+        val imm = this.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.contentView.windowToken, 0)
+    }
+
+    private fun setHeightPopupGif(state: Int) {
+        when (state) {
+            EnumStatePopup.COLLAPSE.value -> {
+                binding.bottomSheetGifPhy.layoutParams.height = dpToPx(250f)
+                binding.bottomSheetGifPhy.animate().start()
+                bottomSheetGifPhy?.setState(EnumStatePopup.COLLAPSE.value)
+            }
+            EnumStatePopup.FULL_SCREEN.value -> {
+                binding.bottomSheetGifPhy.layoutParams.height = binding.contentView.height
+                bottomSheetGifPhy?.setState(EnumStatePopup.FULL_SCREEN.value)
+            }
+            else -> {
+                bottomSheetGifPhy?.setState(EnumStatePopup.HIDE.value)
+            }
+        }
     }
 }

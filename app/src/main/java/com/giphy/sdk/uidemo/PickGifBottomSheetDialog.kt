@@ -13,6 +13,7 @@ import com.giphy.sdk.ui.pagination.GPHContent
 import com.giphy.sdk.ui.views.GPHGridCallback
 import com.giphy.sdk.ui.views.GiphyGridView
 import com.giphy.sdk.uidemo.context.dpToPx
+import com.giphy.sdk.uidemo.context.hide
 import com.giphy.sdk.uidemo.context.show
 import com.giphy.sdk.uidemo.context.textInputAsFlow
 import com.giphy.sdk.uidemo.databinding.LayoutGifphyBottomsheetBinding
@@ -23,28 +24,47 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
+interface OnChangeGifBottomSheet {
+    fun onPickGif(media: Media)
+    fun onFocusEdittext(isFocus: Boolean)
+    fun onBackDefaultHeightPopup(isTouch: Boolean)
+}
+
 class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
 
     companion object {
         const val TIME_DELAY = 200L
         fun newInstance(
             pickGif: ((Media) -> Unit)? = null,
+            focusEdittext: ((Boolean) -> Unit)? = null,
+            backDefaultHeightPopup: ((Boolean) -> Unit)? = null,
         ): PickGifBottomSheetDialog {
             return PickGifBottomSheetDialog().apply {
                 this.pickGif = pickGif
+                this.focusEdittext = focusEdittext
+                this.backDefaultHeightPopup = backDefaultHeightPopup
             }
         }
     }
 
+    var onChangeBottomSheet: OnChangeGifBottomSheet? = null
     private var _binding: LayoutGifphyBottomsheetBinding? = null
     private val binding get() = _binding!!
     private var pickGif: ((Media) -> Unit)? = null
+    private var focusEdittext: ((Boolean) -> Unit)? = null
+    private var backDefaultHeightPopup: ((Boolean) -> Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        dialog?.setOnShowListener { dialog ->
+            val d = dialog as BottomSheetDialog
+            val bottomSheet = d.findViewById<View>(R.id.design_bottom_sheet) as FrameLayout
+            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
         _binding = LayoutGifphyBottomsheetBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -55,12 +75,6 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dialog?.setOnShowListener { dialog ->
-            val d = dialog as BottomSheetDialog
-            val bottomSheet = d.findViewById<View>(R.id.design_bottom_sheet) as FrameLayout
-            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
         setUpGripGif()
     }
 
@@ -86,8 +100,8 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
                 }
 
                 override fun didSelectMedia(media: Media) {
-                    dismissKeyboard()
                     pickGif?.invoke(media)
+                    onChangeBottomSheet?.onPickGif(media)
                 }
             }
         }
@@ -95,8 +109,14 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
             binding.layoutSearchGif.edtSearch.setText("")
         }
         binding.layoutSearchGif.tvGifPhyDone.setOnClickListener {
-            dismissKeyboard()
+            onChangeBottomSheet?.onBackDefaultHeightPopup(true)
+            backDefaultHeightPopup?.invoke(true)
         }
+        binding.layoutSearchGif.edtSearch.setOnFocusChangeListener { view, isFocus ->
+            onChangeBottomSheet?.onFocusEdittext(isFocus)
+            focusEdittext?.invoke(isFocus)
+        }
+
         binding.layoutSearchGif.edtSearch.textInputAsFlow().map { editable ->
             val searchText = editable.isNullOrBlank()
             binding.layoutSearchGif.imvClear.show(!searchText)
@@ -104,10 +124,32 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
         }.debounce(TIME_DELAY).onEach { text ->
             binding.gifsGridView.content = GPHContent.searchQuery(text.toString(), MediaType.gif)
         }.launchIn(lifecycleScope)
+
     }
 
     private fun dismissKeyboard() {
         val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.layoutSearchGif.edtSearch.windowToken, 0)
+    }
+
+    fun setOnPickCallBack(pickGifBottomSheet: OnChangeGifBottomSheet) {
+        this.onChangeBottomSheet = pickGifBottomSheet
+    }
+
+    fun setState(state: Int) {
+        when (state) {
+            EnumStatePopup.COLLAPSE.value -> {
+                binding.layoutSearchGif.edtSearch.isEnabled = false
+                binding.layoutSearchGif.tvGifPhyDone.hide(true)
+            }
+            EnumStatePopup.FULL_SCREEN.value -> {
+                binding.layoutSearchGif.tvGifPhyDone.show(true)
+                binding.layoutSearchGif.edtSearch.isEnabled = true
+            }
+            else -> {
+                binding.layoutSearchGif.tvGifPhyDone.hide(true)
+                binding.layoutSearchGif.edtSearch.isEnabled = false
+            }
+        }
     }
 }
