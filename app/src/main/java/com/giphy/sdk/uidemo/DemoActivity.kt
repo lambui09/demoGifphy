@@ -74,6 +74,7 @@ class DemoActivity : AppCompatActivity() {
         bottomSheetGifPhy = PickGifBottomSheetDialog.newInstance(
             pickGif = { media ->
                 Log.d("####", "media${media.id}")
+                dismissKeyboard()
                 if (stateOfPopup != EnumStatePopup.COLLAPSE.value) {
                     setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
                 }
@@ -84,14 +85,10 @@ class DemoActivity : AppCompatActivity() {
                 if (isFocus) {
                     setHeightPopupGif(EnumStatePopup.FULL_SCREEN.value)
                 } else {
+                    dismissKeyboard()
                     setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
                 }
             },
-            backDefaultHeightPopup = {
-                dismissKeyboard()
-                binding.bottomSheetGifPhy.layoutParams.height = dpToPx(250f)
-                binding.bottomSheetGifPhy.animate().start()
-            }
         )
         bottomSheetGifPhy?.let { instance ->
             supportFragmentManager.beginTransaction()
@@ -141,15 +138,11 @@ class DemoActivity : AppCompatActivity() {
                         }
                         //top: scroll full screen
                         (lp.height > binding.contentView.height - dpToPx(200f)) -> {
-                            lp.height = binding.contentView.height
-                            binding.bottomSheetGifPhy.animate().start()
-                            stateOfPopup = EnumStatePopup.FULL_SCREEN.value
+                            setHeightPopupGif(EnumStatePopup.FULL_SCREEN.value)
                         }
                         //down to pin 250
                         lp.height < binding.contentView.height - dpToPx(200f) -> {
-                            lp.height = dpToPx(250f)
-                            stateOfPopup = EnumStatePopup.FULL_SCREEN.value
-                            binding.bottomSheetGifPhy.animate().start()
+                            setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
                         }
                     }
                 }
@@ -346,14 +339,18 @@ class DemoActivity : AppCompatActivity() {
     }
 
     private fun setHeightPopupGif(state: Int) {
+        val lp = binding.bottomSheetGifPhy.layoutParams
         when (state) {
             EnumStatePopup.COLLAPSE.value -> {
-                binding.bottomSheetGifPhy.layoutParams.height = dpToPx(250f)
-                binding.bottomSheetGifPhy.animate().start()
+                stateOfPopup = EnumStatePopup.COLLAPSE.value
+                lp.height = dpToPx(250f)
+                binding.bottomSheetGifPhy.layoutParams = lp
                 bottomSheetGifPhy?.setState(EnumStatePopup.COLLAPSE.value)
             }
             EnumStatePopup.FULL_SCREEN.value -> {
-                binding.bottomSheetGifPhy.layoutParams.height = binding.contentView.height
+                stateOfPopup = EnumStatePopup.FULL_SCREEN.value
+                lp.height = binding.contentView.height
+                binding.bottomSheetGifPhy.layoutParams = lp
                 bottomSheetGifPhy?.setState(EnumStatePopup.FULL_SCREEN.value)
             }
             else -> {

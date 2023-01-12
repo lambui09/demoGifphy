@@ -110,11 +110,18 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
         }
         binding.layoutSearchGif.tvGifPhyDone.setOnClickListener {
             onChangeBottomSheet?.onBackDefaultHeightPopup(true)
-            backDefaultHeightPopup?.invoke(true)
+            focusEdittext?.invoke(false)
+        }
+        binding.layoutSearchGif.tvSearch.setOnClickListener {
+            focusEdittext?.invoke(true)
         }
         binding.layoutSearchGif.edtSearch.setOnFocusChangeListener { view, isFocus ->
             onChangeBottomSheet?.onFocusEdittext(isFocus)
             focusEdittext?.invoke(isFocus)
+        }
+
+        binding.layoutSearchGif.containerSearch.setOnClickListener {
+            focusEdittext?.invoke(true)
         }
 
         binding.layoutSearchGif.edtSearch.textInputAsFlow().map { editable ->
@@ -139,16 +146,20 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
     fun setState(state: Int) {
         when (state) {
             EnumStatePopup.COLLAPSE.value -> {
-                binding.layoutSearchGif.edtSearch.isEnabled = false
-                binding.layoutSearchGif.tvGifPhyDone.hide(true)
+                binding.layoutSearchGif.edtSearch.hide(true)
+                binding.layoutSearchGif.tvSearch.show(true)
+                binding.layoutSearchGif.tvGifPhyDone.show(false)
             }
             EnumStatePopup.FULL_SCREEN.value -> {
                 binding.layoutSearchGif.tvGifPhyDone.show(true)
-                binding.layoutSearchGif.edtSearch.isEnabled = true
+                binding.layoutSearchGif.edtSearch.show(true)
+                binding.layoutSearchGif.tvSearch.show(false)
+                binding.layoutSearchGif.edtSearch.requestFocus()
             }
             else -> {
-                binding.layoutSearchGif.tvGifPhyDone.hide(true)
-                binding.layoutSearchGif.edtSearch.isEnabled = false
+                binding.layoutSearchGif.tvGifPhyDone.show(false)
+                binding.layoutSearchGif.tvSearch.show(true)
+                binding.layoutSearchGif.edtSearch.hide(true)
             }
         }
     }
