@@ -129,12 +129,12 @@ class DemoActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     private fun handleFragBottomSheet() {
         var downY = 0f
-        val lp = binding.bottomSheetGifPhy.layoutParams
         var time = 0L
         binding.bottomSheetGifPhy.setOnTouchListener { v, event ->
+            val lp = binding.bottomSheetGifPhy.layoutParams
+            var heightPopup = binding.bottomSheetGifPhy.height
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
-                    Log.d("####", "ACTION_UP")
                     val rangeTime = System.currentTimeMillis() - time
                     Log.d("####", "handleFragBottomSheet: ${(downY - event.y) / rangeTime}")
                     when {
@@ -149,12 +149,12 @@ class DemoActivity : AppCompatActivity() {
                             setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
                         }
                         //top: scroll full screen
-                        (lp.height > binding.contentView.height - dpToPx(200f)) -> {
+                        (heightPopup > binding.contentView.height - dpToPx(200f)) -> {
                             Log.d("####", "ACTION_UP FULL")
                             setHeightPopupGif(EnumStatePopup.FULL_SCREEN.value)
                         }
                         //down to pin 300
-                        lp.height < binding.contentView.height - dpToPx(200f) -> {
+                        heightPopup < binding.contentView.height - dpToPx(200f) -> {
                             Log.d("####", "ACTION_UP COLLAPSE")
                             setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
                         }
@@ -166,11 +166,14 @@ class DemoActivity : AppCompatActivity() {
                     time = System.currentTimeMillis()
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if (lp.height >= dpToPx(300f)) {
-                        Log.d("####", "ACTION_MOVE HEIGHT > 300F: ${lp.height} --Y: ${downY - event.y}")
+                    if (heightPopup >= dpToPx(300f)) {
+                        Log.d(
+                            "####",
+                            "ACTION_MOVE HEIGHT > 300F: ${heightPopup} --Y: ${downY - event.y}"
+                        )
                         lp.height += (downY - event.y).toInt()
                     } else {
-                        Log.d("####", "ACTION_MOVE HEIGHT: ${lp.height} --Y: ${downY - event.y}")
+                        Log.d("####", "ACTION_MOVE HEIGHT: ${heightPopup} --Y: ${downY - event.y}")
                         return@setOnTouchListener true
                     }
                 }
