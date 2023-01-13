@@ -1,17 +1,18 @@
 package com.giphy.sdk.uidemo
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.ViewGroup.MarginLayoutParams
+import android.view.animation.Animation
+import android.view.animation.Transformation
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -112,11 +113,13 @@ class DemoActivity : AppCompatActivity() {
                     lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(300f))
                     binding.bottomSheetGifPhy.visibility = View.VISIBLE
                     stateOfPopup = EnumStatePopup.COLLAPSE.value
+                    layoutParams = lp
                 } else {
                     val lp = layoutParams as? MarginLayoutParams
-                    lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(16f))
+                    lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(0f))
                     binding.bottomSheetGifPhy.visibility = View.GONE
                     stateOfPopup = EnumStatePopup.HIDE.value
+                    layoutParams = lp
                 }
                 isShow = !isShow
             }
@@ -131,38 +134,62 @@ class DemoActivity : AppCompatActivity() {
         binding.bottomSheetGifPhy.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
+                    Log.d("####", "ACTION_UP")
                     val rangeTime = System.currentTimeMillis() - time
                     Log.d("####", "handleFragBottomSheet: ${(downY - event.y) / rangeTime}")
                     when {
                         //scroll fast
                         (downY - event.y) / rangeTime > 0.2 -> {
-                            lp.height = binding.contentView.height
+                            Log.d("####", "ACTION_UP TOP")
+                            setHeightPopupGif(EnumStatePopup.FULL_SCREEN.value)
                         }
+                        //scroll bottom
                         (event.y - downY) / rangeTime > 0.2 -> {
-                            lp.height = dpToPx(250f)
+                            Log.d("####", "ACTION_UP BOTTOM")
+                            setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
                         }
                         //top: scroll full screen
                         (lp.height > binding.contentView.height - dpToPx(200f)) -> {
+                            Log.d("####", "ACTION_UP FULL")
                             setHeightPopupGif(EnumStatePopup.FULL_SCREEN.value)
                         }
-                        //down to pin 250
+                        //down to pin 300
                         lp.height < binding.contentView.height - dpToPx(200f) -> {
+                            Log.d("####", "ACTION_UP COLLAPSE")
                             setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
                         }
                     }
                 }
                 MotionEvent.ACTION_DOWN -> {
+                    Log.d("####", "ACTION_DOWN")
                     downY = event.y
                     time = System.currentTimeMillis()
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    lp.height += (downY - event.y).toInt()
+                    if (lp.height >= dpToPx(300f)) {
+                        Log.d("####", "ACTION_MOVE HEIGHT > 300F: ${lp.height} --Y: ${downY - event.y}")
+                        lp.height += (downY - event.y).toInt()
+                    } else {
+                        Log.d("####", "ACTION_MOVE HEIGHT: ${lp.height} --Y: ${downY - event.y}")
+                        return@setOnTouchListener true
+                    }
                 }
             }
-            Log.d("####", "bottomSheetGifPhy: ${lp.height}")
             binding.bottomSheetGifPhy.layoutParams = lp
-            true
+            return@setOnTouchListener true
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (isKeyboardVisible(binding.contentView)) {
+                dismissKeyboard()
+            } else {
+                setHeightPopupGif(EnumStatePopup.COLLAPSE.value)
+            }
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
 
@@ -363,5 +390,89 @@ class DemoActivity : AppCompatActivity() {
                 bottomSheetGifPhy?.setState(EnumStatePopup.HIDE.value)
             }
         }
+    }
+
+    fun expand(v: View) {
+        if (v.visibility == View.VISIBLE) return
+        val durations: Long
+        val matchParentMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+            (v.parent as View).width,
+            View.MeasureSpec.EXACTLY
+        )
+        val wrapContentMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+            0,
+            View.MeasureSpec.UNSPECIFIED
+        )
+        v.measure(matchParentMeasureSpec, wrapContentMeasureSpec)
+        val targetHeight = v.measuredHeight
+
+        // Older versions of android (pre API 21) cancel animations for views with a height of 0.
+        v.layoutParams.height = 1
+        v.visibility = View.VISIBLE
+        durations = ((targetHeight / v.context.resources
+            .displayMetrics.density)).toLong()
+
+        v.alpha = 0.0F
+        v.visibility = View.VISIBLE
+        v.animate().alpha(1.0F).setDuration(durations).setListener(null)
+
+        val a: Animation = object : Animation() {
+            override fun applyTransformation(
+                interpolatedTime: Float,
+                t: Transformation
+            ) {
+                v.layoutParams.height =
+                    if (interpolatedTime == 1f) LinearLayout.LayoutParams.WRAP_CONTENT else (targetHeight * interpolatedTime).toInt()
+                v.requestLayout()
+            }
+
+            override fun willChangeBounds(): Boolean {
+                return true
+            }
+        }
+
+        // Expansion speed of 1dp/ms
+        a.duration = durations
+        v.startAnimation(a)
+    }
+
+    fun collapse(v: View) {
+        if (v.visibility == View.GONE) return
+        val durations: Long
+        val initialHeight = v.measuredHeight
+        val a: Animation = object : Animation() {
+            override fun applyTransformation(
+                interpolatedTime: Float,
+                t: Transformation
+            ) {
+                if (interpolatedTime == 1f) {
+                    v.visibility = View.GONE
+                } else {
+                    v.layoutParams.height =
+                        initialHeight - (initialHeight * interpolatedTime).toInt()
+                    v.requestLayout()
+                }
+            }
+
+            override fun willChangeBounds(): Boolean {
+                return true
+            }
+        }
+
+        durations = (initialHeight / v.context.resources
+            .displayMetrics.density).toLong()
+
+        v.alpha = 1.0F
+        v.animate().alpha(0.0F).setDuration(durations)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    v.visibility = View.GONE
+                    v.alpha = 1.0F
+                }
+            })
+
+        // Collapse speed of 1dp/ms
+        a.duration = durations
+        v.startAnimation(a)
     }
 }

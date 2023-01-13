@@ -1,12 +1,9 @@
 package com.giphy.sdk.uidemo
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import androidx.lifecycle.lifecycleScope
 import com.giphy.sdk.core.models.Media
