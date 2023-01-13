@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
@@ -66,7 +67,8 @@ class DemoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val width: Int = this.resources.displayMetrics.widthPixels
+        val height: Int = this.resources.displayMetrics.heightPixels
         Giphy.configure(this, YOUR_API_KEY, true)
         VideoCache.initialize(this, 100 * 1024 * 1024)
         binding = ActivityDemoBinding.inflate(layoutInflater)
@@ -80,7 +82,7 @@ class DemoActivity : AppCompatActivity() {
                 }
             },
             focusEdittext = { isFocus ->
-                if (isFocus) {
+                if (isFocus && stateOfPopup != EnumStatePopup.FULL_SCREEN.value) {
                     setHeightPopupGif(EnumStatePopup.FULL_SCREEN.value)
                     showSoftKeyboard(this)
                 }
@@ -107,7 +109,7 @@ class DemoActivity : AppCompatActivity() {
             binding.composeContainer.apply {
                 if (!isShow) {
                     val lp = layoutParams as? MarginLayoutParams
-                    lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(250f))
+                    lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(300f))
                     binding.bottomSheetGifPhy.visibility = View.VISIBLE
                     stateOfPopup = EnumStatePopup.COLLAPSE.value
                 } else {
@@ -119,21 +121,7 @@ class DemoActivity : AppCompatActivity() {
                 isShow = !isShow
             }
         }
-        HeightKeyboardProvider(this@DemoActivity).init()
-            .setHeightKeyboardListener(object : HeightKeyboardProvider.HeightKeyboardListener {
-                override fun onHeightKeyboardChanged(height: Int, heightKeyboar: Int) {
-                    Log.d("####", "Before${binding.contentView.height}")
-                    Log.d("###", "height$heightKeyboar")
-                    //todo check bug
-                    if (heightKeyboar > 1000) {
-                        val lp = binding.bottomSheetGifPhy.layoutParams
-                        lp.height = binding.contentView.height - heightKeyboar
-                        binding.bottomSheetGifPhy.layoutParams = lp
-                    }
-                }
-            })
     }
-
 
     @SuppressLint("ClickableViewAccessibility")
     private fun handleFragBottomSheet() {
@@ -361,13 +349,13 @@ class DemoActivity : AppCompatActivity() {
             EnumStatePopup.COLLAPSE.value -> {
                 dismissKeyboard()
                 stateOfPopup = EnumStatePopup.COLLAPSE.value
-                lp.height = dpToPx(250f)
+                lp.height = dpToPx(300f)
                 binding.bottomSheetGifPhy.layoutParams = lp
                 bottomSheetGifPhy?.setState(EnumStatePopup.COLLAPSE.value)
             }
             EnumStatePopup.FULL_SCREEN.value -> {
                 stateOfPopup = EnumStatePopup.FULL_SCREEN.value
-                lp.height = binding.contentView.height
+                lp.height = ViewGroup.LayoutParams.MATCH_PARENT
                 binding.bottomSheetGifPhy.layoutParams = lp
                 bottomSheetGifPhy?.setState(EnumStatePopup.FULL_SCREEN.value)
             }

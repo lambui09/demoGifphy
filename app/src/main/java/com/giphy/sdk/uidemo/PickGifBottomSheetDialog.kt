@@ -1,8 +1,10 @@
 package com.giphy.sdk.uidemo
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
@@ -26,16 +28,10 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
-interface OnChangeGifBottomSheet {
-    fun onPickGif(media: Media)
-    fun onFocusEdittext(isFocus: Boolean)
-    fun onBackDefaultHeightPopup(isTouch: Boolean)
-}
-
 class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
 
     companion object {
-        const val TIME_DELAY = 200L
+        const val TIME_DELAY = 500L
         fun newInstance(
             pickGif: ((Media) -> Unit)? = null,
             focusEdittext: ((Boolean) -> Unit)? = null,
@@ -51,7 +47,6 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
         }
     }
 
-    var onChangeBottomSheet: OnChangeGifBottomSheet? = null
     private var _binding: LayoutGifphyBottomsheetBinding? = null
     private val binding get() = _binding!!
     private var pickGif: ((Media) -> Unit)? = null
@@ -88,6 +83,7 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
         _binding = null
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @OptIn(FlowPreview::class)
     private fun setUpGripGif() {
         binding.gifsGridView.apply {
@@ -106,8 +102,21 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
 
                 override fun didSelectMedia(media: Media) {
                     pickGif?.invoke(media)
-                    onChangeBottomSheet?.onPickGif(media)
                 }
+            }
+        }
+        binding.gifsGridView.searchCallback = object : GPHSearchGridCallback {
+            override fun didTapUsername(username: String) {
+                Timber.d("didTapUsername $username")
+            }
+
+            override fun didLongPressCell(cell: GifView) {
+                Timber.d("didLongPressCell")
+            }
+
+            override fun didScroll(dx: Int, dy: Int) {
+                Timber.d("didScroll$dx ----- $dy")
+                binding.layoutSearchGif.edtSearch.clearFocus()
             }
         }
         binding.layoutSearchGif.imvClear.setOnClickListener {
@@ -120,8 +129,9 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
             focusEdittext?.invoke(true)
         }
         binding.layoutSearchGif.edtSearch.setOnFocusChangeListener { view, isFocus ->
-            onChangeBottomSheet?.onFocusEdittext(isFocus)
-            focusEdittext?.invoke(isFocus)
+            if (isFocus) {
+                binding.layoutSearchGif.edtSearch.requestFocus()
+            }
         }
 
         binding.layoutSearchGif.containerSearch.setOnClickListener {
@@ -133,23 +143,13 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
             binding.layoutSearchGif.imvClear.show(!searchText)
             return@map editable
         }.debounce(TIME_DELAY).onEach { text ->
-            binding.gifsGridView.content = GPHContent.searchQuery(text.toString(), MediaType.gif)
+            if (text == null || text.isNullOrEmpty() == true) {
+                binding.gifsGridView.content = GPHContent.trendingGifs
+            } else {
+                binding.gifsGridView.content =
+                    GPHContent.searchQuery(text.toString(), MediaType.gif)
+            }
         }.launchIn(lifecycleScope)
-
-        binding.gifsGridView.searchCallback = object : GPHSearchGridCallback {
-            override fun didTapUsername(username: String) {
-                Timber.d("didTapUsername $username")
-            }
-
-            override fun didLongPressCell(cell: GifView) {
-                Timber.d("didLongPressCell")
-            }
-
-            override fun didScroll(dx: Int, dy: Int) {
-                binding.layoutSearchGif.edtSearch.clearFocus()
-                onHeightKeyboard?.invoke(true)
-            }
-        }
     }
 
     fun setState(state: Int) {
@@ -163,7 +163,6 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
                 binding.layoutSearchGif.tvGifPhyDone.show(true)
                 binding.layoutSearchGif.edtSearch.show(true)
                 binding.layoutSearchGif.tvSearch.show(false)
-                binding.layoutSearchGif.edtSearch.requestFocus()
             }
             else -> {
                 binding.layoutSearchGif.tvGifPhyDone.show(false)
