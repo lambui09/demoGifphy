@@ -2,14 +2,17 @@ package com.giphy.sdk.uidemo
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.animation.Animation
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.Transformation
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
@@ -132,7 +135,7 @@ class DemoActivity : AppCompatActivity() {
         var time = 0L
         binding.bottomSheetGifPhy.setOnTouchListener { v, event ->
             val lp = binding.bottomSheetGifPhy.layoutParams
-            var heightPopup = binding.bottomSheetGifPhy.height
+            val heightPopup = binding.bottomSheetGifPhy.height
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     val rangeTime = System.currentTimeMillis() - time
@@ -171,14 +174,14 @@ class DemoActivity : AppCompatActivity() {
                             "####",
                             "ACTION_MOVE HEIGHT > 300F: ${heightPopup} --Y: ${downY - event.y}"
                         )
-                        lp.height += (downY - event.y).toInt()
+                        lp.height = heightPopup + (downY - event.y).toInt()
                     } else {
                         Log.d("####", "ACTION_MOVE HEIGHT: ${heightPopup} --Y: ${downY - event.y}")
                         return@setOnTouchListener true
                     }
+                    binding.bottomSheetGifPhy.layoutParams = lp
                 }
             }
-            binding.bottomSheetGifPhy.layoutParams = lp
             return@setOnTouchListener true
         }
     }
@@ -375,23 +378,42 @@ class DemoActivity : AppCompatActivity() {
 
     private fun setHeightPopupGif(state: Int) {
         val lp = binding.bottomSheetGifPhy.layoutParams
+        //edit later
+        val duration = 400L
         when (state) {
             EnumStatePopup.COLLAPSE.value -> {
                 dismissKeyboard()
                 stateOfPopup = EnumStatePopup.COLLAPSE.value
                 lp.height = dpToPx(300f)
-                binding.bottomSheetGifPhy.layoutParams = lp
+                animMovePopup(dpToPx(300f), duration)
                 bottomSheetGifPhy?.setState(EnumStatePopup.COLLAPSE.value)
             }
             EnumStatePopup.FULL_SCREEN.value -> {
                 stateOfPopup = EnumStatePopup.FULL_SCREEN.value
-                lp.height = ViewGroup.LayoutParams.MATCH_PARENT
-                binding.bottomSheetGifPhy.layoutParams = lp
+                lp.height = LayoutParams.MATCH_PARENT
+                animMovePopup(binding.contentView.height, duration)
                 bottomSheetGifPhy?.setState(EnumStatePopup.FULL_SCREEN.value)
             }
             else -> {
                 bottomSheetGifPhy?.setState(EnumStatePopup.HIDE.value)
             }
+        }
+    }
+
+    private fun animMovePopup(target: Int, duration: Long) {
+        binding.bottomSheetGifPhy.apply {
+            val valueAnimator = ValueAnimator.ofInt(height, target)
+            valueAnimator.addUpdateListener { animation ->
+                val lp = layoutParams
+                lp.height = animation.animatedValue as Int
+                if (lp.height >= binding.contentView.height) {
+                    lp.height = LayoutParams.MATCH_PARENT
+                }
+                layoutParams = lp
+            }
+            valueAnimator.interpolator = DecelerateInterpolator()
+            valueAnimator.duration = duration
+            valueAnimator.start()
         }
     }
 
