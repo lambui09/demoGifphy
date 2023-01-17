@@ -34,6 +34,7 @@ import com.giphy.sdk.uidemo.context.dpToPx
 import com.giphy.sdk.uidemo.context.showSoftKeyboard
 import com.giphy.sdk.uidemo.databinding.ActivityDemoBinding
 import com.giphy.sdk.uidemo.feed.*
+import com.giphy.sdk.uidemo.popup.CommentBottomSheetFragment
 import timber.log.Timber
 
 
@@ -60,6 +61,7 @@ class DemoActivity : AppCompatActivity() {
     var messageItems = ArrayList<FeedDataItem>()
     var contentType = GPHContentType.gif
     var stateOfPopup = EnumStatePopup.HIDE.value
+    private var bottomSheet: CommentBottomSheetFragment? = null
 
     //TODO: Set a valid API KEY
     val YOUR_API_KEY = INVALID_KEY
@@ -77,6 +79,7 @@ class DemoActivity : AppCompatActivity() {
         VideoCache.initialize(this, 100 * 1024 * 1024)
         binding = ActivityDemoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         bottomSheetGifPhy = PickGifBottomSheetDialog.newInstance(
             pickGif = { media ->
@@ -110,22 +113,34 @@ class DemoActivity : AppCompatActivity() {
         handleFragBottomSheet()
         //todo show popup gif
         binding.testGifClick.setOnClickListener {
-            binding.composeContainer.apply {
-                if (!isShow) {
-                    val lp = layoutParams as? MarginLayoutParams
-                    lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(300f))
-                    binding.bottomSheetGifPhy.visibility = View.VISIBLE
-                    stateOfPopup = EnumStatePopup.COLLAPSE.value
-                    layoutParams = lp
-                } else {
-                    val lp = layoutParams as? MarginLayoutParams
-                    lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(0f))
-                    binding.bottomSheetGifPhy.visibility = View.GONE
-                    stateOfPopup = EnumStatePopup.HIDE.value
-                    layoutParams = lp
+            bottomSheet = CommentBottomSheetFragment.newInstance() {
+                if (it) {
+                    showGIf()
                 }
-                isShow = !isShow
             }
+            bottomSheet?.show(
+                supportFragmentManager,
+                CommentBottomSheetFragment::class.java.simpleName
+            )
+        }
+    }
+
+    private fun showGIf() {
+        binding.composeContainer.apply {
+            if (!isShow) {
+                val lp = layoutParams as? MarginLayoutParams
+                lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(300f))
+                binding.bottomSheetGifPhy.visibility = View.VISIBLE
+                stateOfPopup = EnumStatePopup.COLLAPSE.value
+                layoutParams = lp
+            } else {
+                val lp = layoutParams as? MarginLayoutParams
+                lp?.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, dpToPx(0f))
+                binding.bottomSheetGifPhy.visibility = View.GONE
+                stateOfPopup = EnumStatePopup.HIDE.value
+                layoutParams = lp
+            }
+            isShow = !isShow
         }
     }
 
@@ -415,89 +430,5 @@ class DemoActivity : AppCompatActivity() {
             valueAnimator.duration = duration
             valueAnimator.start()
         }
-    }
-
-    fun expand(v: View) {
-        if (v.visibility == View.VISIBLE) return
-        val durations: Long
-        val matchParentMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-            (v.parent as View).width,
-            View.MeasureSpec.EXACTLY
-        )
-        val wrapContentMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-            0,
-            View.MeasureSpec.UNSPECIFIED
-        )
-        v.measure(matchParentMeasureSpec, wrapContentMeasureSpec)
-        val targetHeight = v.measuredHeight
-
-        // Older versions of android (pre API 21) cancel animations for views with a height of 0.
-        v.layoutParams.height = 1
-        v.visibility = View.VISIBLE
-        durations = ((targetHeight / v.context.resources
-            .displayMetrics.density)).toLong()
-
-        v.alpha = 0.0F
-        v.visibility = View.VISIBLE
-        v.animate().alpha(1.0F).setDuration(durations).setListener(null)
-
-        val a: Animation = object : Animation() {
-            override fun applyTransformation(
-                interpolatedTime: Float,
-                t: Transformation
-            ) {
-                v.layoutParams.height =
-                    if (interpolatedTime == 1f) LinearLayout.LayoutParams.WRAP_CONTENT else (targetHeight * interpolatedTime).toInt()
-                v.requestLayout()
-            }
-
-            override fun willChangeBounds(): Boolean {
-                return true
-            }
-        }
-
-        // Expansion speed of 1dp/ms
-        a.duration = durations
-        v.startAnimation(a)
-    }
-
-    fun collapse(v: View) {
-        if (v.visibility == View.GONE) return
-        val durations: Long
-        val initialHeight = v.measuredHeight
-        val a: Animation = object : Animation() {
-            override fun applyTransformation(
-                interpolatedTime: Float,
-                t: Transformation
-            ) {
-                if (interpolatedTime == 1f) {
-                    v.visibility = View.GONE
-                } else {
-                    v.layoutParams.height =
-                        initialHeight - (initialHeight * interpolatedTime).toInt()
-                    v.requestLayout()
-                }
-            }
-
-            override fun willChangeBounds(): Boolean {
-                return true
-            }
-        }
-
-        durations = (initialHeight / v.context.resources
-            .displayMetrics.density).toLong()
-
-        v.alpha = 1.0F
-        v.animate().alpha(0.0F).setDuration(durations)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    v.visibility = View.GONE
-                    v.alpha = 1.0F
-                }
-            })
-
-        // Collapse speed of 1dp/ms
-        a.duration = durations
-        v.startAnimation(a)
     }
 }
