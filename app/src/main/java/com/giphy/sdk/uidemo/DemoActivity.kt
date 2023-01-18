@@ -114,9 +114,6 @@ class DemoActivity : AppCompatActivity() {
         //todo show popup gif
         binding.testGifClick.setOnClickListener {
             bottomSheet = CommentBottomSheetFragment.newInstance() {
-                if (it) {
-                    showGIf()
-                }
             }
             bottomSheet?.show(
                 supportFragmentManager,
@@ -179,19 +176,14 @@ class DemoActivity : AppCompatActivity() {
                     }
                 }
                 MotionEvent.ACTION_DOWN -> {
-                    Log.d("####", "ACTION_DOWN")
                     downY = event.y
                     time = System.currentTimeMillis()
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (heightPopup >= dpToPx(300f)) {
-                        Log.d(
-                            "####",
-                            "ACTION_MOVE HEIGHT > 300F: ${heightPopup} --Y: ${downY - event.y}"
-                        )
+
                         lp.height = heightPopup + (downY - event.y).toInt()
                     } else {
-                        Log.d("####", "ACTION_MOVE HEIGHT: ${heightPopup} --Y: ${downY - event.y}")
                         return@setOnTouchListener true
                     }
                     binding.bottomSheetGifPhy.layoutParams = lp

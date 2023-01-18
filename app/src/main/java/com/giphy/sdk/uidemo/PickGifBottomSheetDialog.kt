@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.giphy.sdk.core.models.Media
 import com.giphy.sdk.core.models.enums.MediaType
@@ -25,7 +26,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
-class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
+class PickGifBottomSheetDialog : Fragment() {
 
     companion object {
         const val TIME_DELAY = 500L
@@ -56,28 +57,13 @@ class PickGifBottomSheetDialog : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        dialog?.setOnShowListener { dialog ->
-            val d = dialog as BottomSheetDialog
-            val bottomSheet = d.findViewById<View>(R.id.design_bottom_sheet) as FrameLayout
-            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
         _binding = LayoutGifphyBottomsheetBinding.inflate(inflater, container, false)
         return binding.root
-    }
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpGripGif()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     @SuppressLint("ClickableViewAccessibility")

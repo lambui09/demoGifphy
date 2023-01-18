@@ -12,4 +12,6 @@ object DemoConfig {
     var direction = GiphyGridView.VERTICAL
     var fixedSizeCells = false
     var showCheckeredBackground = true
+    val MIN_PEEK_HEIGHT_POPUP = 300f
+    val DURATION_SCROLL = 400L
 }
