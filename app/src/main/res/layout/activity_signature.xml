@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_FDFDFF">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_header"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/white"
+            android:elevation="@dimen/dp_2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imv_back"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_centerVertical="true"
+                android:paddingStart="@dimen/dp_20"
+                android:paddingEnd="@dimen/dp_22"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_arrow_back_black" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSignDone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:gravity="center"
+                android:padding="@dimen/dp_10"
+                android:text="Done"
+                android:textColor="@color/gray_purple"
+                android:textSize="@dimen/sp_15"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.giphy.sdk.uidemo.widget.SignatureView
+            android:id="@+id/signaturePad"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_200"
+            android:layout_marginHorizontal="@dimen/dp_20"
+            android:layout_marginTop="@dimen/dp_30"
+            android:background="@drawable/bg_signature_input"
+            android:elevation="@dimen/dp_2"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cl_header" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSignNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="@dimen/dp_2"
+            android:text="Draw your signature here"
+            android:textColor="@color/color_20235380"
+            android:textSize="@dimen/sp_20"
+            app:layout_constraintBottom_toBottomOf="@id/signaturePad"
+            app:layout_constraintEnd_toEndOf="@+id/signaturePad"
+            app:layout_constraintStart_toStartOf="@+id/signaturePad"
+            app:layout_constraintTop_toTopOf="@+id/signaturePad" />
+
+    <androidx.constraintlayout.utils.widget.ImageFilterView
+            android:id="@+id/imvRefresh"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_margin="@dimen/dp_10"
+            android:background="@drawable/shape_circle_white"
+            android:elevation="@dimen/dp_4"
+            android:padding="@dimen/dp_12"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/signaturePad"
+            app:layout_constraintEnd_toEndOf="@+id/signaturePad"
+            app:srcCompat="@drawable/ic_refresh" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imvSignature"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_200"
+            android:layout_marginHorizontal="@dimen/dp_20"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/signaturePad"
+            app:srcCompat="@drawable/bg_signature_empty" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imvImage"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_200"
+            android:layout_margin="@dimen/dp_5"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/imvSignature"
+            app:layout_constraintEnd_toEndOf="@+id/imvSignature"
+            app:layout_constraintStart_toStartOf="@+id/imvSignature"
+            app:layout_constraintTop_toTopOf="@+id/imvSignature"
+            tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

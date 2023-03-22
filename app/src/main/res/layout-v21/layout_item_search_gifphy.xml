@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_52"
         android:orientation="horizontal">
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/container_search"
             android:layout_width="0dp"
             android:layout_height="@dimen/dp_52"
@@ -24,7 +24,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_search_gray" />
 
-        <androidx.appcompat.widget.AppCompatEditText
+        <com.giphy.sdk.uidemo.widget.ClearFocusEditText
                 android:id="@+id/edtSearch"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -38,10 +38,30 @@
                 android:paddingBottom="@dimen/dp_16"
                 android:textColor="@color/black"
                 android:textColorHint="@color/color_7B7E9199"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imvClear"
                 app:layout_constraintStart_toEndOf="@id/imvSearchIcon"
                 app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_11"
+                android:layout_weight="1"
+                android:background="@color/ayp_red"
+                android:paddingStart="@dimen/sp_16"
+                android:paddingTop="@dimen/dp_16"
+                android:paddingBottom="@dimen/dp_16"
+                android:text="Input"
+                android:textColor="@color/color_7B7E9199"
+                android:textSize="@dimen/sp_16"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@+id/edtSearch"
+                app:layout_constraintEnd_toStartOf="@id/imvClear"
+                app:layout_constraintStart_toEndOf="@id/imvSearchIcon"
+                app:layout_constraintTop_toTopOf="@+id/edtSearch" />
 
         <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imvClear"
@@ -58,12 +78,15 @@
 
     <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvGifPhyDone"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/dp_54"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingVertical="@dimen/dp_16"
             android:paddingStart="@dimen/dp_16"
             android:text="Done"
             android:textColor="@color/color_7470EF"
-            android:textSize="@dimen/sp_16" />
+            android:textSize="@dimen/sp_16"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible" />
 </androidx.appcompat.widget.LinearLayoutCompat>

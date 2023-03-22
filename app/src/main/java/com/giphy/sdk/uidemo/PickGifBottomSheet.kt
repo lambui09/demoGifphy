@@ -74,7 +74,6 @@ class PickGifBottomSheet : BottomSheetDialogFragment() {
                 }
 
                 override fun didSelectMedia(media: Media) {
-                    dismissKeyboard()
                     pickGif?.invoke(media)
                 }
             }
@@ -83,7 +82,7 @@ class PickGifBottomSheet : BottomSheetDialogFragment() {
             binding.layoutSearchGif.edtSearch.setText("")
         }
         binding.layoutSearchGif.tvGifPhyDone.setOnClickListener {
-            dismissKeyboard()
+
         }
         binding.layoutSearchGif.edtSearch.textInputAsFlow().map { editable ->
             val searchText = editable.isNullOrBlank()
@@ -92,10 +91,5 @@ class PickGifBottomSheet : BottomSheetDialogFragment() {
         }.debounce(TIME_DELAY).onEach { text ->
             binding.gifsGridView.content = GPHContent.searchQuery(text.toString(), MediaType.gif)
         }.launchIn(lifecycleScope)
-    }
-
-    private fun dismissKeyboard() {
-        val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.layoutSearchGif.edtSearch.windowToken, 0)
     }
 }

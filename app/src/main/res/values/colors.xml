@@ -77,6 +77,9 @@
     <color name="color_BABFD2">#BABFD2</color>
     <color name="color_CBCFDC">#CBCFDC</color>
     <color name="color_E8E6E6">#E8E6E6</color>
+    <color name="color_E5E5E5">#E5E5E5</color>
+    <color name="gray_purple">#7B7E91</color>
+    <color name="color_20235380">#20235380</color>
     <color name="color_4285F4">#4285F4</color>
     <color name="color_8A000000">#8A000000</color> <!--  opacity 54%  -->
     <color name="color_3683F7">#3683F7</color>
