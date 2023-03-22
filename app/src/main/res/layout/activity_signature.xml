@@ -5,7 +5,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_FDFDFF">
+        android:background="@color/color_FDFDFF"
+        android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_header"
@@ -90,7 +91,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_200"
             android:layout_marginHorizontal="@dimen/dp_20"
-            android:scaleType="fitXY"
+            android:elevation="@dimen/dp_2"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -100,8 +101,8 @@
     <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imvImage"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_200"
-            android:layout_margin="@dimen/dp_5"
+            android:layout_height="@dimen/dp_180"
+            android:layout_margin="@dimen/dp_10"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@+id/imvSignature"
             app:layout_constraintEnd_toEndOf="@+id/imvSignature"
