@@ -48,3 +48,14 @@ fun View.show(show: Boolean) {
     }
 }
 
+fun View.gone() {
+    this.visibility = View.GONE
+}
+fun View.showOrInvisible(show: Boolean) {
+    if (show) {
+        this.visibility = View.VISIBLE
+    } else {
+        this.visibility = View.INVISIBLE
+    }
+}
+
