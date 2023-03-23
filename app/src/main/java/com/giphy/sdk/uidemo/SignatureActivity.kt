@@ -3,6 +3,7 @@ package com.giphy.sdk.uidemo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -107,7 +108,9 @@ class SignatureActivity : AppCompatActivity() {
 
     fun addSignView(path: String) {
         getBitmapFromFilePath(path)?.let {
-            binding.imvImage.setImageBitmap(it)
+            val bitmap = BitmapDrawable(resources, it)
+            bitmap.alpha = 100
+            binding.imvSignature.setImageDrawable(bitmap)
         }
     }
 }

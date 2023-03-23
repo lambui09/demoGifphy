@@ -12,6 +12,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+
 //todo check
 class SignatureView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
@@ -26,7 +27,7 @@ class SignatureView(context: Context, attrs: AttributeSet?) : View(context, attr
         signaturePaint.apply {
             isAntiAlias = true
             style = Paint.Style.STROKE
-            strokeJoin = Paint.Join.ROUND
+            strokeJoin = Paint.Join.BEVEL
             strokeCap = Paint.Cap.ROUND
             color = signatureColor
             strokeWidth = signatureWidth
@@ -85,12 +86,15 @@ class SignatureView(context: Context, attrs: AttributeSet?) : View(context, attr
     }
 
     fun saveSignature(): String? {
-        val bitmap = Bitmap.createBitmap(width-2, height-2, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(width - 2, height - 2, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
         draw(canvas)
         val directory =
-            File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "signatures")
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "signatures"
+            )
         if (!directory.exists()) {
             directory.mkdirs()
         }

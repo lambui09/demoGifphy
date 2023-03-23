@@ -46,8 +46,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.giphy.sdk.uidemo.widget.SignatureView
-            android:id="@+id/signaturePad"
+    <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_200"
             android:layout_marginHorizontal="@dimen/dp_20"
@@ -57,21 +56,24 @@
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cl_header" />
+            app:layout_constraintTop_toBottomOf="@+id/cl_header">
 
-    <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvSignNote"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:elevation="@dimen/dp_2"
-            android:text="Draw your signature here"
-            android:textColor="@color/color_20235380"
-            android:textSize="@dimen/sp_20"
-            app:layout_constraintBottom_toBottomOf="@id/signaturePad"
-            app:layout_constraintEnd_toEndOf="@+id/signaturePad"
-            app:layout_constraintStart_toStartOf="@+id/signaturePad"
-            app:layout_constraintTop_toTopOf="@+id/signaturePad" />
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSignNote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:elevation="@dimen/dp_2"
+                android:text="Draw your signature here"
+                android:textColor="@color/color_20235380"
+                android:textSize="@dimen/sp_20" />
+
+        <com.giphy.sdk.uidemo.widget.SignatureView
+                android:id="@+id/signaturePad"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent" />
+    </FrameLayout>
 
     <androidx.constraintlayout.utils.widget.ImageFilterView
             android:id="@+id/imvRefresh"
@@ -91,23 +93,12 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_200"
             android:layout_marginHorizontal="@dimen/dp_20"
-            android:elevation="@dimen/dp_2"
+            android:layout_marginBottom="@dimen/dp_60"
+            android:background="@drawable/bg_signature_empty"
+            android:elevation="@dimen/dp_0"
+            app:layout_constraintBaseline_toBottomOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/signaturePad"
-            app:srcCompat="@drawable/bg_signature_empty" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imvImage"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_180"
-            android:layout_margin="@dimen/dp_10"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@+id/imvSignature"
-            app:layout_constraintEnd_toEndOf="@+id/imvSignature"
-            app:layout_constraintStart_toStartOf="@+id/imvSignature"
-            app:layout_constraintTop_toTopOf="@+id/imvSignature"
-            tools:visibility="visible" />
+            app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
